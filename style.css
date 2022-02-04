@@ -1,5 +1,7 @@
 body {
     color: #000;
+    margin: 0 auto;
+    max-width: 1200px;
 }
 textarea {
     min-height: 10.5rem;
@@ -27,4 +29,27 @@ button[disabled]:hover {
     background-color: #fff;
     border-color: #3778c2;
     color: #666;
+}
+.wrapper {
+    max-width: 1200px;
+    margin-top: 30px;
+}
+.flex-container {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+    justify-content: center;
+}
+.panel-right {
+    flex-grow: 2;
+}
+.schematic {
+    width: 600px;
+    height: 192px;
+    position: absolute;
+    margin-left: 30px;
+}
+#commentField {
+    margin-top: 250px;
 }

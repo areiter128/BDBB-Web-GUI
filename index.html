@@ -10,27 +10,33 @@
 <body>
 
   <main class="wrapper">
-    <section id="grid" class="container">
-      <div class="element">
-        <h3 class="title">1. Connect to a serial port</h3>
-        <button id="connect-to-serial">Connect</button>
+    <section class="flex-container">
+      <div class="panel-left">
+        <div class="element">
+          <h3 class="title">1. Connect to a serial port</h3>
+          <button id="connect-to-serial">Connect</button>
+        </div>
+        <div class="element">
+          <h3 class="title">2. Read data</h3>
+          <button class="message-button" data-value="0" disabled="true">Read</button>
+        </div>
+        <div class="element">
+          <h3 class="title">3. Returned data</h3>
+        </div> 
       </div>
-      <div class="element">
-        <h3 class="title">2. Read data</h3>
-        <button class="message-button" data-value="0" disabled="true">Read</button>
+      <div class="panel-right">
+        <img src="./boost1.png" class="schematic">
+        <form>
+          <fieldset>
+            <textarea placeholder="Log …" id="commentField"></textarea>
+          </fieldset>
+        </form>
       </div>
-      <div class="element">
-        <h3 class="title">3. Returned data</h3>
-      </div>
-      <form>
-        <fieldset>
-          <textarea placeholder="Log …" id="commentField"></textarea>
-        </fieldset>
-      </form>
+
     </section>
   </main>
   
-  <script src="./dist/serial-handler.js" type="module"></script>
-  <script src="./dist/app.js" type="module"></script>
+  <!-- <script src="./dist/serial-handler.js" type="module"></script>
+  <script src="./dist/app.js" type="module"></script> -->
 </body>
 </html>
