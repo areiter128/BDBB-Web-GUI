@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Digital control interface</title>
+  <link rel="stylesheet" href="./milligram.min.css">
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <main class="wrapper">
+    <section id="grid" class="container">
+      <div class="element">
+        <h3 class="title">1. Connect to a serial port</h3>
+        <button id="connect-to-serial">Connect</button>
+      </div>
+      <div class="element">
+        <h3 class="title">2. Read data</h3>
+        <button class="message-button" data-value="0" disabled="true">Read</button>
+      </div>
+      <div class="element">
+        <h3 class="title">3. Returned data</h3>
+      </div>
+      <form>
+        <fieldset>
+          <textarea placeholder="Log …" id="commentField"></textarea>
+        </fieldset>
+      </form>
+    </section>
+  </main>
+  
+  <script src="./dist/serial-handler.js" type="module"></script>
+  <script src="./dist/app.js" type="module"></script>
+</body>
+</html>

@@ -1,0 +1,30 @@
+body {
+    color: #000;
+}
+textarea {
+    min-height: 10.5rem;
+}
+textarea:focus {
+    border-color: #3778c2;
+}
+button {
+    background-color: #fff;
+    border: 0.1rem solid #3778c2;
+    color: #000;
+}
+button:hover {
+    background-color: #4b9fe1;
+}
+
+button:focus {
+    background-color: #4b9fe1;
+    outline: 2px solid #3778c2;
+}
+button[disabled] {
+    color: #666;
+}
+button[disabled]:hover {
+    background-color: #fff;
+    border-color: #3778c2;
+    color: #666;
+}
