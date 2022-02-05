@@ -13,21 +13,54 @@
     <section class="flex-container">
       <div class="panel-left">
         <div class="element">
-          <h3 class="title">1. Connect to a serial port</h3>
+          <h3 class="title">Connect to a serial port</h3>
           <button id="connect-to-serial">Connect</button>
         </div>
         <div class="element">
-          <h3 class="title">2. Read data</h3>
+          <h3 class="title">Read/Write data</h3>
           <button class="message-button" data-value="0" disabled="true">Read</button>
+          <div class="flex-container-m1">
+            <div>
+              <label for="irefField">Iref</label>
+              <input type="number" placeholder="1.0" id="irefField">
+            </div>
+            <div>
+              <label for="offsetField">Offset</label>
+              <input type="number" placeholder="12" id="offsetField">
+            </div>
+            <div>
+              <label for="iref16Field">Iref_uint16</label>
+              <input type="text" id="iref16Field">
+            </div>
+            <div>
+              <label for="deltaIrefField">Delta Iref</label>
+              <input type="number" placeholder="1" id="deltaIrefField">
+            </div>
+          </div>
+          <div id="control-btns">
+            <div>
+              <button class="message-button" data-value="0" disabled="true" id="setIrefBtn">Set Iref</button>
+              <button class="message-button" data-value="0" disabled="true" id="incIrefBtn">Inc Iref</button>
+            </div>
+
+            <div>
+              <button class="message-button" data-value="0" disabled="true" id="startBtn">Start</button>
+              <button class="message-button" data-value="0" disabled="true" id="stopBtn">Stop</button>
+            </div>
         </div>
-        <div class="element">
-          <h3 class="title">3. Returned data</h3>
-        </div> 
+        </div>
       </div>
       <div class="panel-right">
         <img src="./boost1.png" class="schematic">
         <form>
           <fieldset>
+            <input type="text" placeholder="- V" id="hvField">
+            <input type="text" placeholder="- &#176;C" id="tempField">
+            <input type="text" placeholder="- V" id="lvField">
+            <input type="text" placeholder="- A" id="ctField">
+            <input type="text" placeholder="- A" id="c1Field">
+            <input type="text" placeholder="- A" id="c2Field">
+
             <textarea placeholder="Log …" id="commentField"></textarea>
           </fieldset>
         </form>

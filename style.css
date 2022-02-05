@@ -5,8 +5,9 @@ body {
 }
 textarea {
     min-height: 10.5rem;
+    width: 700px;
 }
-textarea:focus {
+textarea:focus,input[type="text"]:focus,input[type="number"]:focus {
     border-color: #3778c2;
 }
 button {
@@ -41,15 +42,84 @@ button[disabled]:hover {
     gap: 10px;
     justify-content: center;
 }
+.flex-container-m1 {
+    position: relative;
+    display: flex;
+    flex-direction: row;
+    gap: 10px;
+}
+.panel-left {
+    background-color: #f0f0f0;
+    padding: 10px;
+    min-width: 340px;
+}
+.panel-left h3 {
+    font-size: 2rem;
+    margin: 10px 0;
+}
 .panel-right {
-    flex-grow: 2;
+    width: 740px;
 }
 .schematic {
     width: 600px;
     height: 192px;
     position: absolute;
     margin-left: 30px;
+    margin-top: 50px;
 }
 #commentField {
-    margin-top: 250px;
+    margin-top: 270px;
+}
+#hvField {
+    position: absolute;
+    margin-top: 135px;
+    margin-left: 80px;
+    padding: 4px;
+    width: 60px;
+}
+#lvField {
+    position: absolute;
+    margin-top: 135px;
+    margin-left: 615px;
+    padding: 4px;
+    width: 60px;
+}
+#tempField {
+    position: absolute;
+    margin-top: 135px;
+    margin-left: 310px;
+    padding: 4px;
+    width: 60px;
+}
+#ctField,#c1Field,#c2Field {
+    position: absolute;
+    margin-left: 475px;
+    padding: 4px;
+    width: 60px;
+}
+#c1Field,#c2Field {
+    height: 24px;
+    font-size: 0.75em;
+}
+#ctField {
+    margin-top: 15px;
+}
+#c1Field {
+    margin-top: 110px;
+}
+#c2Field {
+    margin-top: 135px;
+}
+.flex-container label {
+    font-size: 1.5rem;
+    font-weight: 400;
+}
+.flex-container input[type="number"] {
+    width: 70px;
+}
+.flex-container input[type="text"] {
+    width: 70px;
+}
+#control-btns button {
+    width: 130px;
 }
