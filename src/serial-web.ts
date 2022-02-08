@@ -76,7 +76,7 @@ class MCUWebSerial {
                 port.addEventListener('disconnect', () => {
                     // Remove `e.target` from the list of available ports.
                     const now = new Date();
-                    const msg = `${now.getHours()}:${now.getMinutes()}     Serial port disconnected.\n`;
+                    const msg = `${now.getHours()}:${now.getMinutes()}  Serial port disconnected.\n`;
                     this.logMessageContainer.value += msg;
                     // disable control buttons
                     this.messageButtons.forEach((button: HTMLButtonElement) => {
@@ -86,11 +86,11 @@ class MCUWebSerial {
                 });        
             } catch(err) {
                 this.systemStat = 2;
-                const msg = `${now.getHours()}:${now.getMinutes()}     An error occured while trying to open the serial port.\n`;
+                const msg = `${now.getHours()}:${now.getMinutes()}  An error occured while trying to open the serial port.\n`;
                 this.logMessageContainer.value += msg;
             }
         } else {
-            const msg = `${now.getHours()}:${now.getMinutes()}     Web serial is not supported in this broswer. Please use Microsoft Edge or Chrome with experimental feature enabled.\n`;
+            const msg = `${now.getHours()}:${now.getMinutes()}  Web serial is not supported in this broswer. Please use Microsoft Edge or Chrome with experimental feature enabled.\n`;
             this.logMessageContainer.value += msg;
             console.error('Web serial doesn\'t seem to be enabled in your browser. Try enabling it by visiting:')
             console.error('chrome://flags/#enable-experimental-web-platform-features');
@@ -115,13 +115,13 @@ class MCUWebSerial {
      */
     async read(): Promise<string> {
         try {
-        const readerData = await this.reader.read();
-        // console.log(readerData.value);
-        return readerData.value;
+            const readerData = await this.reader.read();
+            // console.log(readerData.value);
+            return readerData.value;
         } catch (err) {
-        const errorMessage = `error reading data: ${err}`;
-        console.error(errorMessage);
-        return errorMessage;
+            const errorMessage = `error reading data: ${err}`;
+            console.error(errorMessage);
+            return errorMessage;
         }
     }
 
@@ -158,18 +158,27 @@ class MCUWebSerial {
         const i3 = this.decodeInt(returnData.slice(4,6));
         const i4 = this.decodeInt(returnData.slice(6,8));
 
-        const i5 = this.decodeIntSigned(returnData.slice(8,10));
-        const i6 = this.decodeInt(returnData.slice(10,12));
+        // const i5 = this.decodeInt(returnData.slice(8,10));
+        // const i6 = this.decodeInt(returnData.slice(10,12));
         const i7 = this.decodeInt(returnData.slice(12,14));
         const i8 = this.decodeInt(returnData.slice(14,15));
 
-        const i1n = i1*this.scale*41/2;
-        const i2n = i2*this.scale/0.1;
-        const i3n = i3*this.scale*17/2;
-        const i4n = i4*this.scale*41/2;
+        const i1n = i1*this.scale*(100+5.362)/5.36;
+        this.lvDisp.value = `${i1n.toFixed(2)} V`;
 
-        const displayData = `Vcfly:${i1}=${i1n.toFixed(2)}V, Iout:${i2}=${i2n.toFixed(2)}A, Vout:${i3}=${i3n.toFixed(2)}V, Vin:${i4}=${i4n.toFixed(2)}V, DeltaD:${i5}, d1:${i6}, d2:${i7}, state:${i8}`;
-        const msg = `${now.getHours()}:${now.getMinutes()}     ` + displayData + `\n`;
+        const i2n = i2*this.scale*(100+5.362)/5.36;
+        this.hvDisp.value = `${i2n.toFixed(2)} V`;
+
+        const i3n = -(i3-1938)*this.scale/0.01;
+        const i4n = -(i4-1942)*this.scale/0.01;
+        this.c1Disp.value = `${i3n.toFixed(1)} A`;
+        this.c2Disp.value = `${i4n.toFixed(1)} A`;
+
+        const i7n = i7*0.2315 -273;
+        this.tempDisp.value = `${i7n.toFixed(1)} &#176;C`;
+
+        const displayData = `Data received. System state:${i8}.`;
+        const msg = `${now.getHours()}:${now.getMinutes()}  ` + displayData + `\n`;
         this.logMessageContainer.value += msg;
         // console.log(listElement)
     }    

@@ -117,7 +117,7 @@ var MCUWebSerial = /** @class */ (function () {
                         port.addEventListener('disconnect', function () {
                             // Remove `e.target` from the list of available ports.
                             var now = new Date();
-                            var msg = now.getHours() + ":" + now.getMinutes() + "     Serial port disconnected.\n";
+                            var msg = now.getHours() + ":" + now.getMinutes() + "  Serial port disconnected.\n";
                             _this.logMessageContainer.value += msg;
                             // disable control buttons
                             _this.messageButtons.forEach(function (button) {
@@ -129,12 +129,12 @@ var MCUWebSerial = /** @class */ (function () {
                     case 5:
                         err_1 = _a.sent();
                         this.systemStat = 2;
-                        msg = now.getHours() + ":" + now.getMinutes() + "     An error occured while trying to open the serial port.\n";
+                        msg = now.getHours() + ":" + now.getMinutes() + "  An error occured while trying to open the serial port.\n";
                         this.logMessageContainer.value += msg;
                         return [3 /*break*/, 6];
                     case 6: return [3 /*break*/, 8];
                     case 7:
-                        msg = now.getHours() + ":" + now.getMinutes() + "     Web serial is not supported in this broswer. Please use Microsoft Edge or Chrome with experimental feature enabled.\n";
+                        msg = now.getHours() + ":" + now.getMinutes() + "  Web serial is not supported in this broswer. Please use Microsoft Edge or Chrome with experimental feature enabled.\n";
                         this.logMessageContainer.value += msg;
                         console.error('Web serial doesn\'t seem to be enabled in your browser. Try enabling it by visiting:');
                         console.error('chrome://flags/#enable-experimental-web-platform-features');
@@ -216,7 +216,7 @@ var MCUWebSerial = /** @class */ (function () {
     };
     MCUWebSerial.prototype.getSerialMessage = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var now, returnData, i1, i2, i3, i4, i5, i6, i7, i8, i1n, i2n, i3n, i4n, displayData, msg;
+            var now, returnData, i1, i2, i3, i4, i7, i8, i1n, i2n, i3n, i4n, i7n, displayData, msg;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -233,16 +233,20 @@ var MCUWebSerial = /** @class */ (function () {
                         i2 = this.decodeInt(returnData.slice(2, 4));
                         i3 = this.decodeInt(returnData.slice(4, 6));
                         i4 = this.decodeInt(returnData.slice(6, 8));
-                        i5 = this.decodeIntSigned(returnData.slice(8, 10));
-                        i6 = this.decodeInt(returnData.slice(10, 12));
                         i7 = this.decodeInt(returnData.slice(12, 14));
                         i8 = this.decodeInt(returnData.slice(14, 15));
-                        i1n = i1 * this.scale * 41 / 2;
-                        i2n = i2 * this.scale / 0.1;
-                        i3n = i3 * this.scale * 17 / 2;
-                        i4n = i4 * this.scale * 41 / 2;
-                        displayData = "Vcfly:" + i1 + "=" + i1n.toFixed(2) + "V, Iout:" + i2 + "=" + i2n.toFixed(2) + "A, Vout:" + i3 + "=" + i3n.toFixed(2) + "V, Vin:" + i4 + "=" + i4n.toFixed(2) + "V, DeltaD:" + i5 + ", d1:" + i6 + ", d2:" + i7 + ", state:" + i8;
-                        msg = now.getHours() + ":" + now.getMinutes() + "     " + displayData + "\n";
+                        i1n = i1 * this.scale * (100 + 5.362) / 5.36;
+                        this.lvDisp.value = i1n.toFixed(2) + " V";
+                        i2n = i2 * this.scale * (100 + 5.362) / 5.36;
+                        this.hvDisp.value = i2n.toFixed(2) + " V";
+                        i3n = -(i3 - 1938) * this.scale / 0.01;
+                        i4n = -(i4 - 1942) * this.scale / 0.01;
+                        this.c1Disp.value = i3n.toFixed(1) + " A";
+                        this.c2Disp.value = i4n.toFixed(1) + " A";
+                        i7n = i7 * 0.2315 - 273;
+                        this.tempDisp.value = i7n.toFixed(1) + " &#176;C";
+                        displayData = "Data received. System state:" + i8 + ".";
+                        msg = now.getHours() + ":" + now.getMinutes() + "  " + displayData + "\n";
                         this.logMessageContainer.value += msg;
                         return [2 /*return*/];
                 }
