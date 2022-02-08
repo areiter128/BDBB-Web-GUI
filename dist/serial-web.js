@@ -43,7 +43,19 @@ var MCUWebSerial = /** @class */ (function () {
         this.messageButtons = document.querySelectorAll('.message-button');
         this.logMessageContainer = document.getElementById('commentField');
         this.readButton = document.getElementById('read-data');
+        this.incButton = document.getElementById('incIrefBtn');
+        this.hvDisp = document.getElementById('hvField');
+        this.lvDisp = document.getElementById('lvField');
+        this.tempDisp = document.getElementById('tempField');
+        this.ctDisp = document.getElementById('ctField');
+        this.c1Disp = document.getElementById('c1Field');
+        this.c2Disp = document.getElementById('c2Field');
+        this.irefInput = document.getElementById('irefField');
+        this.offsetInput = document.getElementById('offsetField');
+        this.iref16Input = document.getElementById('iref16Field');
+        this.deltaIrefInput = document.getElementById('deltaIrefField');
         this.scale = 3.3 / 4096;
+        this.BUCK_ISNS_FEEDBACK_GAIN = 0.01;
         this.connectButtonElem.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -58,10 +70,25 @@ var MCUWebSerial = /** @class */ (function () {
             _this.write('A');
             _this.getSerialMessage();
         };
+        this.irefInput.addEventListener('input', function () {
+            var irefValue = parseInt(_this.irefInput.value, 10) * _this.BUCK_ISNS_FEEDBACK_GAIN / _this.scale + parseInt(_this.offsetInput.value);
+            _this.iref16Input.value = String(irefValue.toFixed(0));
+        });
+        this.offsetInput.addEventListener('input', function () {
+            var irefValue = parseInt(_this.irefInput.value, 10) * _this.BUCK_ISNS_FEEDBACK_GAIN / _this.scale + parseInt(_this.offsetInput.value);
+            _this.iref16Input.value = String(irefValue.toFixed(0));
+        });
+        this.incButton.onclick = function () {
+            var irefNewValue = parseInt(_this.irefInput.value) + parseInt(_this.deltaIrefInput.value);
+            _this.irefInput.value = String(irefNewValue);
+            var irefValue = parseInt(_this.irefInput.value, 10) * _this.BUCK_ISNS_FEEDBACK_GAIN / _this.scale + parseInt(_this.offsetInput.value);
+            _this.iref16Input.value = String(irefValue.toFixed(0));
+        };
     }
     MCUWebSerial.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
             var now, port, signals, err_1, msg, msg;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
@@ -89,6 +116,13 @@ var MCUWebSerial = /** @class */ (function () {
                         });
                         port.addEventListener('disconnect', function () {
                             // Remove `e.target` from the list of available ports.
+                            var now = new Date();
+                            var msg = now.getHours() + ":" + now.getMinutes() + "     Serial port disconnected.\n";
+                            _this.logMessageContainer.value += msg;
+                            // disable control buttons
+                            _this.messageButtons.forEach(function (button) {
+                                button.setAttribute('disabled', '');
+                            });
                             console.log('Serial port disconnected.');
                         });
                         return [3 /*break*/, 6];

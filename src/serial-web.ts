@@ -4,12 +4,26 @@ class MCUWebSerial {
     encoder = new TextEncoder();
     systemStat: number;
 
-    connectButtonElem = <HTMLButtonElement>document.getElementById('connect-to-serial')!;
-    messageButtons = document.querySelectorAll<HTMLButtonElement>('.message-button')!;
-    logMessageContainer =  <HTMLInputElement>document.getElementById('commentField')!;
-    readButton = <HTMLButtonElement>document.getElementById('read-data')!;
+    connectButtonElem = <HTMLButtonElement>document.getElementById('connect-to-serial');
+    messageButtons = document.querySelectorAll<HTMLButtonElement>('.message-button');
+    logMessageContainer =  <HTMLInputElement>document.getElementById('commentField');
+    readButton = <HTMLButtonElement>document.getElementById('read-data');
+    incButton = <HTMLButtonElement>document.getElementById('incIrefBtn');
+
+    hvDisp = <HTMLInputElement>document.getElementById('hvField');
+    lvDisp = <HTMLInputElement>document.getElementById('lvField');
+    tempDisp = <HTMLInputElement>document.getElementById('tempField');
+    ctDisp = <HTMLInputElement>document.getElementById('ctField');
+    c1Disp = <HTMLInputElement>document.getElementById('c1Field');
+    c2Disp = <HTMLInputElement>document.getElementById('c2Field');
+
+    irefInput = <HTMLInputElement>document.getElementById('irefField');
+    offsetInput = <HTMLInputElement>document.getElementById('offsetField');
+    iref16Input = <HTMLInputElement>document.getElementById('iref16Field');
+    deltaIrefInput = <HTMLInputElement>document.getElementById('deltaIrefField');
 
     scale = 3.3/4096;
+    BUCK_ISNS_FEEDBACK_GAIN = 0.01;
 
     constructor() {
         
@@ -22,6 +36,22 @@ class MCUWebSerial {
             this.getSerialMessage();
         };
         
+        this.irefInput.addEventListener('input', () => {
+            let irefValue = parseInt(this.irefInput.value,10)*this.BUCK_ISNS_FEEDBACK_GAIN/this.scale + parseInt(this.offsetInput.value);
+            this.iref16Input.value = String(irefValue.toFixed(0));
+        });
+
+        this.offsetInput.addEventListener('input', () => {
+            let irefValue = parseInt(this.irefInput.value,10)*this.BUCK_ISNS_FEEDBACK_GAIN/this.scale + parseInt(this.offsetInput.value);
+            this.iref16Input.value = String(irefValue.toFixed(0));
+        });       
+        
+        this.incButton.onclick = () => {
+            let irefNewValue = parseInt(this.irefInput.value) + parseInt(this.deltaIrefInput.value);
+            this.irefInput.value = String(irefNewValue);
+            let irefValue = parseInt(this.irefInput.value,10)*this.BUCK_ISNS_FEEDBACK_GAIN/this.scale + parseInt(this.offsetInput.value);
+            this.iref16Input.value = String(irefValue.toFixed(0));            
+        };
     
     }
 
@@ -44,8 +74,15 @@ class MCUWebSerial {
                 });
         
                 port.addEventListener('disconnect', () => {
-                // Remove `e.target` from the list of available ports.
-                console.log('Serial port disconnected.')
+                    // Remove `e.target` from the list of available ports.
+                    const now = new Date();
+                    const msg = `${now.getHours()}:${now.getMinutes()}     Serial port disconnected.\n`;
+                    this.logMessageContainer.value += msg;
+                    // disable control buttons
+                    this.messageButtons.forEach((button: HTMLButtonElement) => {
+                        button.setAttribute('disabled','');
+                    });                    
+                    console.log('Serial port disconnected.')
                 });        
             } catch(err) {
                 this.systemStat = 2;
@@ -59,7 +96,7 @@ class MCUWebSerial {
             console.error('chrome://flags/#enable-experimental-web-platform-features');
             console.error('opera://flags/#enable-experimental-web-platform-features');
             console.error('edge://flags/#enable-experimental-web-platform-features');
-            this.systemStat = 0;
+            this.systemStat = 0;         
         }
     }
       /**
