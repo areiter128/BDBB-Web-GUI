@@ -31,6 +31,34 @@ button[disabled]:hover {
     border-color: #3778c2;
     color: #666;
 }
+#startBtn {
+    border: 0.1rem solid #3C8B3C;
+}
+#startBtn:hover {
+    background-color: #449d44;
+}
+#startBtn:focus {
+    background-color: #449d44;
+    outline: 2px solid #3C8B3C;
+}
+#startBtn[disabled]:hover {
+    background-color: #fff;
+    border-color: #3C8B3C;
+}
+#stopBtn {
+    border: 0.1rem solid #be3834;
+}
+#stopBtn:hover {
+    background-color: #d9534f;
+}
+#stopBtn:focus {
+    background-color: #d9534f;
+    outline: 2px solid #be3834;
+}
+#stopBtn[disabled]:hover {
+    background-color: #fff;
+    border-color: #be3834;
+}
 .wrapper {
     max-width: 1200px;
     margin-top: 30px;
