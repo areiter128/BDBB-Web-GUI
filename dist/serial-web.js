@@ -140,6 +140,7 @@ var MCUWebSerial = /** @class */ (function () {
                         });
                         //change connect button function
                         this.connectButtonElem.innerText = "Disconnect";
+                        this.connectButtonElem.setAttribute('class', 'redBtn');
                         this.connectButtonElem.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
                             var now, msg;
                             var _this = this;
@@ -152,6 +153,7 @@ var MCUWebSerial = /** @class */ (function () {
                                     case 1:
                                         _a.sent();
                                         this.connectButtonElem.innerText = "Connect";
+                                        this.connectButtonElem.removeAttribute('class');
                                         this.connectButtonElem.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
                                             return __generator(this, function (_a) {
                                                 switch (_a.label) {
@@ -162,6 +164,10 @@ var MCUWebSerial = /** @class */ (function () {
                                                 }
                                             });
                                         }); };
+                                        // disable control buttons
+                                        this.messageButtons.forEach(function (button) {
+                                            button.setAttribute('disabled', '');
+                                        });
                                         now = new Date();
                                         msg = now.getHours() + ":" + now.getMinutes() + "  User interrupt. Disconnected.\n";
                                         this.logMessageContainer.value += msg;
@@ -291,7 +297,7 @@ var MCUWebSerial = /** @class */ (function () {
                         this.c1Disp.value = i3n.toFixed(1) + " A";
                         this.c2Disp.value = i4n.toFixed(1) + " A";
                         i7n = i7 * 0.2315 - 273;
-                        this.tempDisp.value = i7n.toFixed(1) + " &#176;C";
+                        this.tempDisp.value = i7n.toFixed(1) + " \u00B0C";
                         displayData = "Data received. System state:" + i8 + ".";
                         msg = now.getHours() + ":" + now.getMinutes() + "  " + displayData + "\n";
                         this.logMessageContainer.value += msg;

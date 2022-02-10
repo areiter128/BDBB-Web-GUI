@@ -45,13 +45,13 @@ button[disabled]:hover {
     background-color: #fff;
     border-color: #3C8B3C;
 }
-#stopBtn {
+#stopBtn,.redBtn {
     border: 0.1rem solid #be3834;
 }
-#stopBtn:hover {
+#stopBtn:hover,.redBtn:hover {
     background-color: #d9534f;
 }
-#stopBtn:focus {
+#stopBtn:focus,.redBtn:focus {
     background-color: #d9534f;
     outline: 2px solid #be3834;
 }

@@ -93,14 +93,23 @@ class MCUWebSerial {
                 
                 //change connect button function
                 this.connectButtonElem.innerText = "Disconnect";
+                this.connectButtonElem.setAttribute('class','redBtn');
                 this.connectButtonElem.onclick = async () => {
                     this.reader.releaseLock();
+                    try {
+                        this.reader.cancel();
+                    }
                     this.writer.releaseLock();
                     await port.close();
                     this.connectButtonElem.innerText = "Connect";
+                    this.connectButtonElem.removeAttribute('class');
                     this.connectButtonElem.onclick = async () => {
                         await this.init();
                     };
+                    // disable control buttons
+                    this.messageButtons.forEach((button: HTMLButtonElement) => {
+                        button.setAttribute('disabled','');
+                    });                    
                     const now = new Date();
                     const msg = `${now.getHours()}:${now.getMinutes()}  User interrupt. Disconnected.\n`;
                     this.logMessageContainer.value += msg;
@@ -199,7 +208,7 @@ class MCUWebSerial {
         this.c2Disp.value = `${i4n.toFixed(1)} A`;
 
         const i7n = i7*0.2315 -273;
-        this.tempDisp.value = `${i7n.toFixed(1)} &#176;C`;
+        this.tempDisp.value = `${i7n.toFixed(1)} °C`;
 
         const displayData = `Data received. System state:${i8}.`;
         const msg = `${now.getHours()}:${now.getMinutes()}  ` + displayData + `\n`;
