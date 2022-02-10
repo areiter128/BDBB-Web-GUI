@@ -87,7 +87,7 @@ var MCUWebSerial = /** @class */ (function () {
     }
     MCUWebSerial.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var now, port, signals, err_1, msg, msg;
+            var now, port_1, signals, msg, err_1, msg, msg;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -99,13 +99,13 @@ var MCUWebSerial = /** @class */ (function () {
                         _a.trys.push([1, 5, , 6]);
                         return [4 /*yield*/, navigator.serial.requestPort()];
                     case 2:
-                        port = _a.sent();
-                        return [4 /*yield*/, port.open({ baudRate: 9600 })];
+                        port_1 = _a.sent();
+                        return [4 /*yield*/, port_1.open({ baudRate: 9600 })];
                     case 3:
                         _a.sent(); // `baudRate` was `baudrate` in previous versions.
-                        this.writer = port.writable.getWriter();
-                        this.reader = port.readable.getReader();
-                        return [4 /*yield*/, port.getSignals()];
+                        this.writer = port_1.writable.getWriter();
+                        this.reader = port_1.readable.getReader();
+                        return [4 /*yield*/, port_1.getSignals()];
                     case 4:
                         signals = _a.sent();
                         console.log(signals);
@@ -114,7 +114,9 @@ var MCUWebSerial = /** @class */ (function () {
                         this.messageButtons.forEach(function (button) {
                             button.removeAttribute('disabled');
                         });
-                        port.addEventListener('disconnect', function () {
+                        msg = now.getHours() + ":" + now.getMinutes() + "  Connected.\n";
+                        this.logMessageContainer.value += msg;
+                        port_1.addEventListener('disconnect', function () {
                             // Remove `e.target` from the list of available ports.
                             var now = new Date();
                             var msg = now.getHours() + ":" + now.getMinutes() + "  Serial port disconnected.\n";
@@ -123,8 +125,50 @@ var MCUWebSerial = /** @class */ (function () {
                             _this.messageButtons.forEach(function (button) {
                                 button.setAttribute('disabled', '');
                             });
+                            _this.connectButtonElem.innerText = "Connect";
+                            _this.connectButtonElem.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
+                                return __generator(this, function (_a) {
+                                    switch (_a.label) {
+                                        case 0: return [4 /*yield*/, this.init()];
+                                        case 1:
+                                            _a.sent();
+                                            return [2 /*return*/];
+                                    }
+                                });
+                            }); };
                             console.log('Serial port disconnected.');
                         });
+                        //change connect button function
+                        this.connectButtonElem.innerText = "Disconnect";
+                        this.connectButtonElem.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
+                            var now, msg;
+                            var _this = this;
+                            return __generator(this, function (_a) {
+                                switch (_a.label) {
+                                    case 0:
+                                        this.reader.releaseLock();
+                                        this.writer.releaseLock();
+                                        return [4 /*yield*/, port_1.close()];
+                                    case 1:
+                                        _a.sent();
+                                        this.connectButtonElem.innerText = "Connect";
+                                        this.connectButtonElem.onclick = function () { return __awaiter(_this, void 0, void 0, function () {
+                                            return __generator(this, function (_a) {
+                                                switch (_a.label) {
+                                                    case 0: return [4 /*yield*/, this.init()];
+                                                    case 1:
+                                                        _a.sent();
+                                                        return [2 /*return*/];
+                                                }
+                                            });
+                                        }); };
+                                        now = new Date();
+                                        msg = now.getHours() + ":" + now.getMinutes() + "  User interrupt. Disconnected.\n";
+                                        this.logMessageContainer.value += msg;
+                                        return [2 /*return*/];
+                                }
+                            });
+                        }); };
                         return [3 /*break*/, 6];
                     case 5:
                         err_1 = _a.sent();
@@ -171,18 +215,21 @@ var MCUWebSerial = /** @class */ (function () {
      */
     MCUWebSerial.prototype.read = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var readerData, err_2, errorMessage;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
+            var _a, value, done, err_2, errorMessage;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
                     case 0:
-                        _a.trys.push([0, 2, , 3]);
+                        _b.trys.push([0, 2, , 3]);
                         return [4 /*yield*/, this.reader.read()];
                     case 1:
-                        readerData = _a.sent();
+                        _a = _b.sent(), value = _a.value, done = _a.done;
                         // console.log(readerData.value);
-                        return [2 /*return*/, readerData.value];
+                        if (done) {
+                            this.reader.releaseLock();
+                        }
+                        return [2 /*return*/, value];
                     case 2:
-                        err_2 = _a.sent();
+                        err_2 = _b.sent();
                         errorMessage = "error reading data: " + err_2;
                         console.error(errorMessage);
                         return [2 /*return*/, errorMessage];

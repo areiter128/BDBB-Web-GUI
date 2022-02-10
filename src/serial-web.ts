@@ -72,6 +72,8 @@ class MCUWebSerial {
                 this.messageButtons.forEach((button: HTMLButtonElement) => {
                     button.removeAttribute('disabled');
                 });
+                const msg = `${now.getHours()}:${now.getMinutes()}  Connected.\n`;
+                this.logMessageContainer.value += msg;                
         
                 port.addEventListener('disconnect', () => {
                     // Remove `e.target` from the list of available ports.
@@ -81,9 +83,28 @@ class MCUWebSerial {
                     // disable control buttons
                     this.messageButtons.forEach((button: HTMLButtonElement) => {
                         button.setAttribute('disabled','');
-                    });                    
+                    });
+                    this.connectButtonElem.innerText = "Connect";
+                    this.connectButtonElem.onclick = async () => {
+                        await this.init();
+                    };
                     console.log('Serial port disconnected.')
-                });        
+                });    
+                
+                //change connect button function
+                this.connectButtonElem.innerText = "Disconnect";
+                this.connectButtonElem.onclick = async () => {
+                    this.reader.releaseLock();
+                    this.writer.releaseLock();
+                    await port.close();
+                    this.connectButtonElem.innerText = "Connect";
+                    this.connectButtonElem.onclick = async () => {
+                        await this.init();
+                    };
+                    const now = new Date();
+                    const msg = `${now.getHours()}:${now.getMinutes()}  User interrupt. Disconnected.\n`;
+                    this.logMessageContainer.value += msg;
+                }
             } catch(err) {
                 this.systemStat = 2;
                 const msg = `${now.getHours()}:${now.getMinutes()}  An error occured while trying to open the serial port.\n`;
@@ -115,9 +136,12 @@ class MCUWebSerial {
      */
     async read(): Promise<string> {
         try {
-            const readerData = await this.reader.read();
+            const {value, done} = await this.reader.read();
             // console.log(readerData.value);
-            return readerData.value;
+            if (done) {
+                this.reader.releaseLock();
+            }
+            return value;
         } catch (err) {
             const errorMessage = `error reading data: ${err}`;
             console.error(errorMessage);
