@@ -9,6 +9,8 @@ class MCUWebSerial {
     logMessageContainer =  <HTMLInputElement>document.getElementById('commentField');
     readButton = <HTMLButtonElement>document.getElementById('read-data');
     incButton = <HTMLButtonElement>document.getElementById('incIrefBtn');
+    startButton = <HTMLButtonElement>document.getElementById('startBtn');
+    stopButton = <HTMLButtonElement>document.getElementById('stopBtn');
 
     hvDisp = <HTMLInputElement>document.getElementById('hvField');
     lvDisp = <HTMLInputElement>document.getElementById('lvField');
@@ -33,7 +35,7 @@ class MCUWebSerial {
     
         this.readButton.onclick = () => {
             this.write('A');
-            this.getSerialMessage();
+            this.getData();
         };
         
         this.irefInput.addEventListener('input', () => {
@@ -52,6 +54,12 @@ class MCUWebSerial {
             let irefValue = parseInt(this.irefInput.value,10)*this.BUCK_ISNS_FEEDBACK_GAIN/this.scale + parseInt(this.offsetInput.value);
             this.iref16Input.value = String(irefValue.toFixed(0));            
         };
+
+        this.startButton.onclick = () => {
+            this.write('G');
+            this.verifyResponse('G');
+        };
+
     
     }
 
@@ -98,6 +106,8 @@ class MCUWebSerial {
                     this.reader.releaseLock();
                     try {
                         this.reader.cancel();
+                    } catch(err) {
+                        console.error('No reader to cancel');
                     }
                     this.writer.releaseLock();
                     await port.close();
@@ -180,7 +190,7 @@ class MCUWebSerial {
         return isnegative ? minval + (val & mask) : val;
     }
     
-    async getSerialMessage() {
+    async getData() {
         const now = new Date();
         // const listElement = document.createElement('li');
         await this.sleep(300);
@@ -214,7 +224,19 @@ class MCUWebSerial {
         const msg = `${now.getHours()}:${now.getMinutes()}  ` + displayData + `\n`;
         this.logMessageContainer.value += msg;
         // console.log(listElement)
-    }    
+    }
+    
+    async verifyResponse(cmd:string) {
+        const now = new Date();
+        await this.sleep(150);
+        const returnData = await this.read();
+        console.log(returnData.slice(0,1));
+        if (cmd == returnData.slice(0,1)) {
+            // read iref and put in log
+        } else {
+            // put error message in log
+        }
+    }
 }
 
 new MCUWebSerial();
