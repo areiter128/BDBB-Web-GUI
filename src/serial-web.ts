@@ -2,12 +2,14 @@ class MCUWebSerial {
     reader: ReadableStreamDefaultReader;
     writer: WritableStreamDefaultWriter;
     encoder = new TextEncoder();
+    decoder = new TextDecoder();
     systemStat: number;
 
     connectButtonElem = <HTMLButtonElement>document.getElementById('connect-to-serial');
     messageButtons = document.querySelectorAll<HTMLButtonElement>('.message-button');
     logMessageContainer =  <HTMLInputElement>document.getElementById('commentField');
     readButton = <HTMLButtonElement>document.getElementById('read-data');
+    setirefButton = <HTMLButtonElement>document.getElementById('setIrefBtn');
     incButton = <HTMLButtonElement>document.getElementById('incIrefBtn');
     startButton = <HTMLButtonElement>document.getElementById('startBtn');
     stopButton = <HTMLButtonElement>document.getElementById('stopBtn');
@@ -47,20 +49,35 @@ class MCUWebSerial {
             let irefValue = parseInt(this.irefInput.value,10)*this.BUCK_ISNS_FEEDBACK_GAIN/this.scale + parseInt(this.offsetInput.value);
             this.iref16Input.value = String(irefValue.toFixed(0));
         });       
-        
-        this.incButton.onclick = () => {
-            let irefNewValue = parseInt(this.irefInput.value) + parseInt(this.deltaIrefInput.value);
-            this.irefInput.value = String(irefNewValue);
-            let irefValue = parseInt(this.irefInput.value,10)*this.BUCK_ISNS_FEEDBACK_GAIN/this.scale + parseInt(this.offsetInput.value);
-            this.iref16Input.value = String(irefValue.toFixed(0));            
-        };
 
         this.startButton.onclick = () => {
             this.write('G');
             this.verifyResponse('G');
         };
 
+        this.stopButton.onclick = () => {
+            this.write('x');
+            this.verifyResponse('x');
+        };
+
+        this.setirefButton.onclick = () => {
+            if (this.iref16Input.value == '') {
+                const irefValue = parseInt(this.irefInput.value,10)*this.BUCK_ISNS_FEEDBACK_GAIN/this.scale + parseInt(this.offsetInput.value);
+                this.iref16Input.value = String(irefValue.toFixed(0));
+            }
+            this.writeE(this.encodeData('e',parseInt(this.iref16Input.value,10)));
+            this.verifyResponse('e',parseInt(this.iref16Input.value,10));
+        };
     
+        this.incButton.onclick = () => {
+            const irefNewValue = parseInt(this.irefInput.value) + parseInt(this.deltaIrefInput.value);
+            this.irefInput.value = String(irefNewValue);
+            const irefValue = parseInt(this.irefInput.value,10)*this.BUCK_ISNS_FEEDBACK_GAIN/this.scale + parseInt(this.offsetInput.value);
+            this.iref16Input.value = String(irefValue.toFixed(0));
+            this.writeE(this.encodeData('e',parseInt(irefValue.toFixed(0))));
+            this.verifyResponse('e',parseInt(irefValue.toFixed(0)));                    
+        };
+
     }
 
     async init() {
@@ -149,6 +166,15 @@ class MCUWebSerial {
         return await this.writer.write(dataArrayBuffer);
     }
 
+      /**
+     * Takes already encoded and then writes it using the `writer` attached to the serial port.
+     * @param edata - already encoded data that will be sent to the Serial port.
+     * @returns An empty promise after the message has been written.
+     */
+    async writeE(data: Uint8Array): Promise<void> {
+        return await this.writer.write(data);
+    }    
+
     /**
      * Gets data from the `reader`, decodes it and returns it inside a promise.
      * @returns A promise containing either the message from the `reader` or an error.
@@ -171,6 +197,16 @@ class MCUWebSerial {
     async sleep(ms:number) {
         return new Promise(resolve => setTimeout(resolve, ms));
     }
+
+    encodeData(s1:string,n1:number) {
+        const data = new Uint8Array(4);
+        data[0] = s1.charCodeAt(0);
+        data[1] = n1 & 0xFF;
+        data[2] = n1 >> 8;
+        const checksum = data[0]+data[1]+data[2];
+        data[3] = checksum%256;
+        return data;
+    }    
 
     decodeInt(str:String):number {
         let num = parseInt(str[0], 10);
@@ -216,6 +252,7 @@ class MCUWebSerial {
         const i4n = -(i4-1942)*this.scale/0.01;
         this.c1Disp.value = `${i3n.toFixed(1)} A`;
         this.c2Disp.value = `${i4n.toFixed(1)} A`;
+        this.ctDisp.value = `${(i4n+i3n).toFixed(1)} A`;
 
         const i7n = i7*0.2315 -273;
         this.tempDisp.value = `${i7n.toFixed(1)} °C`;
@@ -226,15 +263,32 @@ class MCUWebSerial {
         // console.log(listElement)
     }
     
-    async verifyResponse(cmd:string) {
+    async verifyResponse(cmd:string,n1?:number) {
         const now = new Date();
         await this.sleep(150);
         const returnData = await this.read();
-        console.log(returnData.slice(0,1));
-        if (cmd == returnData.slice(0,1)) {
-            // read iref and put in log
+        if (cmd.charCodeAt(0) == this.decodeInt(returnData.slice(0,1))) {
+            if (cmd == 'G') {
+                const i1 = this.decodeInt(returnData.slice(1,3));
+                const msg = `${now.getHours()}:${now.getMinutes()}  Starting boost. Iset_adc = ${i1}.\n`;
+                this.logMessageContainer.value += msg;   
+            } else if (cmd == 'x') {
+                const msg = `${now.getHours()}:${now.getMinutes()}  Shutting down.\n`;
+                this.logMessageContainer.value += msg;  
+            } else if (cmd == 'e') {
+                const i1 = this.decodeInt(returnData.slice(1,3));
+                if (i1 === n1) {
+                    const msg = `${now.getHours()}:${now.getMinutes()}  Command sent. Iset_adc = ${i1}.\n`;
+                    this.logMessageContainer.value += msg;  
+                } else {
+                    const msg = `${now.getHours()}:${now.getMinutes()}  Error. Verification failed. TX = ${n1}, RX = ${i1}\n`;
+                    this.logMessageContainer.value += msg;
+                }
+            }
+                     
         } else {
-            // put error message in log
+            const msg = `${now.getHours()}:${now.getMinutes()}  Error. Verification failed.\n`;
+            this.logMessageContainer.value += msg;
         }
     }
 }

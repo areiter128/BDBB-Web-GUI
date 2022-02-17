@@ -39,11 +39,15 @@ var MCUWebSerial = /** @class */ (function () {
     function MCUWebSerial() {
         var _this = this;
         this.encoder = new TextEncoder();
+        this.decoder = new TextDecoder();
         this.connectButtonElem = document.getElementById('connect-to-serial');
         this.messageButtons = document.querySelectorAll('.message-button');
         this.logMessageContainer = document.getElementById('commentField');
         this.readButton = document.getElementById('read-data');
+        this.setirefButton = document.getElementById('setIrefBtn');
         this.incButton = document.getElementById('incIrefBtn');
+        this.startButton = document.getElementById('startBtn');
+        this.stopButton = document.getElementById('stopBtn');
         this.hvDisp = document.getElementById('hvField');
         this.lvDisp = document.getElementById('lvField');
         this.tempDisp = document.getElementById('tempField');
@@ -68,7 +72,7 @@ var MCUWebSerial = /** @class */ (function () {
         }); };
         this.readButton.onclick = function () {
             _this.write('A');
-            _this.getSerialMessage();
+            _this.getData();
         };
         this.irefInput.addEventListener('input', function () {
             var irefValue = parseInt(_this.irefInput.value, 10) * _this.BUCK_ISNS_FEEDBACK_GAIN / _this.scale + parseInt(_this.offsetInput.value);
@@ -78,11 +82,29 @@ var MCUWebSerial = /** @class */ (function () {
             var irefValue = parseInt(_this.irefInput.value, 10) * _this.BUCK_ISNS_FEEDBACK_GAIN / _this.scale + parseInt(_this.offsetInput.value);
             _this.iref16Input.value = String(irefValue.toFixed(0));
         });
+        this.startButton.onclick = function () {
+            _this.write('G');
+            _this.verifyResponse('G');
+        };
+        this.stopButton.onclick = function () {
+            _this.write('x');
+            _this.verifyResponse('x');
+        };
+        this.setirefButton.onclick = function () {
+            if (_this.iref16Input.value == '') {
+                var irefValue = parseInt(_this.irefInput.value, 10) * _this.BUCK_ISNS_FEEDBACK_GAIN / _this.scale + parseInt(_this.offsetInput.value);
+                _this.iref16Input.value = String(irefValue.toFixed(0));
+            }
+            _this.writeE(_this.encodeData('e', parseInt(_this.iref16Input.value, 10)));
+            _this.verifyResponse('e', parseInt(_this.iref16Input.value, 10));
+        };
         this.incButton.onclick = function () {
             var irefNewValue = parseInt(_this.irefInput.value) + parseInt(_this.deltaIrefInput.value);
             _this.irefInput.value = String(irefNewValue);
             var irefValue = parseInt(_this.irefInput.value, 10) * _this.BUCK_ISNS_FEEDBACK_GAIN / _this.scale + parseInt(_this.offsetInput.value);
             _this.iref16Input.value = String(irefValue.toFixed(0));
+            _this.writeE(_this.encodeData('e', parseInt(irefValue.toFixed(0))));
+            _this.verifyResponse('e', parseInt(irefValue.toFixed(0)));
         };
     }
     MCUWebSerial.prototype.init = function () {
@@ -148,6 +170,12 @@ var MCUWebSerial = /** @class */ (function () {
                                 switch (_a.label) {
                                     case 0:
                                         this.reader.releaseLock();
+                                        try {
+                                            this.reader.cancel();
+                                        }
+                                        catch (err) {
+                                            console.error('No reader to cancel');
+                                        }
                                         this.writer.releaseLock();
                                         return [4 /*yield*/, port_1.close()];
                                     case 1:
@@ -216,6 +244,21 @@ var MCUWebSerial = /** @class */ (function () {
         });
     };
     /**
+   * Takes already encoded and then writes it using the `writer` attached to the serial port.
+   * @param edata - already encoded data that will be sent to the Serial port.
+   * @returns An empty promise after the message has been written.
+   */
+    MCUWebSerial.prototype.writeE = function (data) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.writer.write(data)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    /**
      * Gets data from the `reader`, decodes it and returns it inside a promise.
      * @returns A promise containing either the message from the `reader` or an error.
      */
@@ -251,6 +294,15 @@ var MCUWebSerial = /** @class */ (function () {
             });
         });
     };
+    MCUWebSerial.prototype.encodeData = function (s1, n1) {
+        var data = new Uint8Array(4);
+        data[0] = s1.charCodeAt(0);
+        data[1] = n1 & 0xFF;
+        data[2] = n1 >> 8;
+        var checksum = data[0] + data[1] + data[2];
+        data[3] = checksum % 256;
+        return data;
+    };
     MCUWebSerial.prototype.decodeInt = function (str) {
         var num = parseInt(str[0], 10);
         if (str.length == 2) {
@@ -267,7 +319,7 @@ var MCUWebSerial = /** @class */ (function () {
         var mask = boundary - 1;
         return isnegative ? minval + (val & mask) : val;
     };
-    MCUWebSerial.prototype.getSerialMessage = function () {
+    MCUWebSerial.prototype.getData = function () {
         return __awaiter(this, void 0, void 0, function () {
             var now, returnData, i1, i2, i3, i4, i7, i8, i1n, i2n, i3n, i4n, i7n, displayData, msg;
             return __generator(this, function (_a) {
@@ -296,11 +348,56 @@ var MCUWebSerial = /** @class */ (function () {
                         i4n = -(i4 - 1942) * this.scale / 0.01;
                         this.c1Disp.value = i3n.toFixed(1) + " A";
                         this.c2Disp.value = i4n.toFixed(1) + " A";
+                        this.ctDisp.value = (i4n + i3n).toFixed(1) + " A";
                         i7n = i7 * 0.2315 - 273;
                         this.tempDisp.value = i7n.toFixed(1) + " \u00B0C";
                         displayData = "Data received. System state:" + i8 + ".";
                         msg = now.getHours() + ":" + now.getMinutes() + "  " + displayData + "\n";
                         this.logMessageContainer.value += msg;
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    MCUWebSerial.prototype.verifyResponse = function (cmd, n1) {
+        return __awaiter(this, void 0, void 0, function () {
+            var now, returnData, i1, msg, msg, i1, msg, msg, msg;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        now = new Date();
+                        return [4 /*yield*/, this.sleep(150)];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.read()];
+                    case 2:
+                        returnData = _a.sent();
+                        if (cmd.charCodeAt(0) == this.decodeInt(returnData.slice(0, 1))) {
+                            if (cmd == 'G') {
+                                i1 = this.decodeInt(returnData.slice(1, 3));
+                                msg = now.getHours() + ":" + now.getMinutes() + "  Starting boost. Iset_adc = " + i1 + ".\n";
+                                this.logMessageContainer.value += msg;
+                            }
+                            else if (cmd == 'x') {
+                                msg = now.getHours() + ":" + now.getMinutes() + "  Shutting down.\n";
+                                this.logMessageContainer.value += msg;
+                            }
+                            else if (cmd == 'e') {
+                                i1 = this.decodeInt(returnData.slice(1, 3));
+                                if (i1 === n1) {
+                                    msg = now.getHours() + ":" + now.getMinutes() + "  Command sent. Iset_adc = " + i1 + ".\n";
+                                    this.logMessageContainer.value += msg;
+                                }
+                                else {
+                                    msg = now.getHours() + ":" + now.getMinutes() + "  Error. Verification failed. TX = " + n1 + ", RX = " + i1 + "\n";
+                                    this.logMessageContainer.value += msg;
+                                }
+                            }
+                        }
+                        else {
+                            msg = now.getHours() + ":" + now.getMinutes() + "  Error. Verification failed.\n";
+                            this.logMessageContainer.value += msg;
+                        }
                         return [2 /*return*/];
                 }
             });
