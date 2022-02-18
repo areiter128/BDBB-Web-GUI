@@ -199,6 +199,7 @@ var MCUWebSerial = /** @class */ (function () {
                                         now = new Date();
                                         msg = now.getHours() + ":" + now.getMinutes() + "  User interrupt. Disconnected.\n";
                                         this.logMessageContainer.value += msg;
+                                        this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                                         return [2 /*return*/];
                                 }
                             });
@@ -209,11 +210,13 @@ var MCUWebSerial = /** @class */ (function () {
                         this.systemStat = 2;
                         msg = now.getHours() + ":" + now.getMinutes() + "  An error occured while trying to open the serial port.\n";
                         this.logMessageContainer.value += msg;
+                        this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                         return [3 /*break*/, 6];
                     case 6: return [3 /*break*/, 8];
                     case 7:
                         msg = now.getHours() + ":" + now.getMinutes() + "  Web serial is not supported in this broswer. Please use Microsoft Edge or Chrome with experimental feature enabled.\n";
                         this.logMessageContainer.value += msg;
+                        this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                         console.error('Web serial doesn\'t seem to be enabled in your browser. Try enabling it by visiting:');
                         console.error('chrome://flags/#enable-experimental-web-platform-features');
                         console.error('opera://flags/#enable-experimental-web-platform-features');
@@ -354,6 +357,7 @@ var MCUWebSerial = /** @class */ (function () {
                         displayData = "Data received. System state:" + i8 + ".";
                         msg = now.getHours() + ":" + now.getMinutes() + "  " + displayData + "\n";
                         this.logMessageContainer.value += msg;
+                        this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                         return [2 /*return*/];
                 }
             });
@@ -377,26 +381,31 @@ var MCUWebSerial = /** @class */ (function () {
                                 i1 = this.decodeInt(returnData.slice(1, 3));
                                 msg = now.getHours() + ":" + now.getMinutes() + "  Starting boost. Iset_adc = " + i1 + ".\n";
                                 this.logMessageContainer.value += msg;
+                                this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                             }
                             else if (cmd == 'x') {
                                 msg = now.getHours() + ":" + now.getMinutes() + "  Shutting down.\n";
                                 this.logMessageContainer.value += msg;
+                                this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                             }
                             else if (cmd == 'e') {
                                 i1 = this.decodeInt(returnData.slice(1, 3));
                                 if (i1 === n1) {
                                     msg = now.getHours() + ":" + now.getMinutes() + "  Command sent. Iset_adc = " + i1 + ".\n";
                                     this.logMessageContainer.value += msg;
+                                    this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                                 }
                                 else {
                                     msg = now.getHours() + ":" + now.getMinutes() + "  Error. Verification failed. TX = " + n1 + ", RX = " + i1 + "\n";
                                     this.logMessageContainer.value += msg;
+                                    this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                                 }
                             }
                         }
                         else {
                             msg = now.getHours() + ":" + now.getMinutes() + "  Error. Verification failed.\n";
                             this.logMessageContainer.value += msg;
+                            this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                         }
                         return [2 /*return*/];
                 }

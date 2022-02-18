@@ -140,15 +140,18 @@ class MCUWebSerial {
                     const now = new Date();
                     const msg = `${now.getHours()}:${now.getMinutes()}  User interrupt. Disconnected.\n`;
                     this.logMessageContainer.value += msg;
+                    this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                 }
             } catch(err) {
                 this.systemStat = 2;
                 const msg = `${now.getHours()}:${now.getMinutes()}  An error occured while trying to open the serial port.\n`;
                 this.logMessageContainer.value += msg;
+                this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
             }
         } else {
             const msg = `${now.getHours()}:${now.getMinutes()}  Web serial is not supported in this broswer. Please use Microsoft Edge or Chrome with experimental feature enabled.\n`;
             this.logMessageContainer.value += msg;
+            this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
             console.error('Web serial doesn\'t seem to be enabled in your browser. Try enabling it by visiting:')
             console.error('chrome://flags/#enable-experimental-web-platform-features');
             console.error('opera://flags/#enable-experimental-web-platform-features');
@@ -260,6 +263,7 @@ class MCUWebSerial {
         const displayData = `Data received. System state:${i8}.`;
         const msg = `${now.getHours()}:${now.getMinutes()}  ` + displayData + `\n`;
         this.logMessageContainer.value += msg;
+        this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
         // console.log(listElement)
     }
     
@@ -271,24 +275,29 @@ class MCUWebSerial {
             if (cmd == 'G') {
                 const i1 = this.decodeInt(returnData.slice(1,3));
                 const msg = `${now.getHours()}:${now.getMinutes()}  Starting boost. Iset_adc = ${i1}.\n`;
-                this.logMessageContainer.value += msg;   
+                this.logMessageContainer.value += msg;  
+                this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight; 
             } else if (cmd == 'x') {
                 const msg = `${now.getHours()}:${now.getMinutes()}  Shutting down.\n`;
                 this.logMessageContainer.value += msg;  
+                this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
             } else if (cmd == 'e') {
                 const i1 = this.decodeInt(returnData.slice(1,3));
                 if (i1 === n1) {
                     const msg = `${now.getHours()}:${now.getMinutes()}  Command sent. Iset_adc = ${i1}.\n`;
                     this.logMessageContainer.value += msg;  
+                    this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                 } else {
                     const msg = `${now.getHours()}:${now.getMinutes()}  Error. Verification failed. TX = ${n1}, RX = ${i1}\n`;
                     this.logMessageContainer.value += msg;
+                    this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
                 }
             }
                      
         } else {
             const msg = `${now.getHours()}:${now.getMinutes()}  Error. Verification failed.\n`;
             this.logMessageContainer.value += msg;
+            this.logMessageContainer.scrollTop = this.logMessageContainer.scrollHeight;
         }
     }
 }
