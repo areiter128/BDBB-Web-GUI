@@ -85,7 +85,7 @@ class MCUWebSerial {
         if ('serial' in navigator) {
             try {
                 const port = await (navigator as any).serial.requestPort();
-                await port.open({ baudRate: 9600 }); // `baudRate` was `baudrate` in previous versions.
+                await port.open({ baudRate: 115200 }); // `baudRate` was `baudrate` in previous versions.
         
                 this.writer = port.writable.getWriter();
                 this.reader = port.readable.getReader();
